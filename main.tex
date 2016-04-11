@@ -1,0 +1,207 @@
+\section{Main Algorithm}
+
+%Notations: 
+%Process set $P$
+%receive list $R(p_{dest})$
+%send list $S(p_{src}, p_{dest})$
+
+%This section describes the general structure of the approach in this paper.
+This section presents how to generate match pairs for a CTP. 
+Intuitively, \algoref{algo:main} is called several times for the CTP, once for each process that contains a sequence of receives. 
+In each call of \algoref{algo:main}, a process is sectioned, where each section contains roughly $k$ sends from each sender. A sequence of receives in the process is also added to the section where the number of receives is equal to the number of sends in the same section.
+The divided sections consisting of only sends and receives for the process are then input to the existing algorithm for match pair generation \cite{DBLP:conf/kbse/HuangMM13}. 
+
+%a fixed number of sequential receives. It then distributes a sequence of sends from each sender process to match the receives in each section. The total number of sends is equal to the number of receives in each section. Finally, the algorithm generates the match pairs for the sends and the receives in the same section by simply comparing their ranks. The intuitive meaning of a rank is a non-negative integer that represents the position of a send or a receive in a specific sequence.
+
+
+\begin{algorithm}
+\caption{Process Sectioning}\label{algo:main}
+\begin{algorithmic}[1]
+%\State $S\gets\emptyset$
+%\State $N_k\gets\Call{min}{|\mathit{sender}|\times k, |R|}$
+\While{$|R|>0$}
+\State $r \gets$ \Call{dequeue}{R}
+%\State $N_r\gets N_r+1$
+\If{\Call{frm}{r}$=\ast$}
+\State let $p$ be such that $\forall p^\prime \in \Delta\ (|S(p)|>0  \wedge |S(p^\prime)|>0  \wedge \Call{$N_s$}{p}\le \Call{$N_s$}{p^\prime} )$
+\Else 
+\State let $p$ be the sender of $r$
+\EndIf
+\State $N_s(p)\gets N_s(p)+1$
+\State $s\gets$ \Call{dequeue}{$S(p)$}
+%\If{$|S|=0$}
+%\State $\mathit{sender}\gets\mathit{sender} \setminus \{S\}$
+%\EndIf
+%\State $S_i\gets S_i\cup\{s\}$ 
+\State $\mathit{cur}\gets \mathit{cur}\cup \{r,s\}$
+\If{$\forall p \in \Delta\ (\Call{$N_s$}{p}>=k \vee |S(p)|=0) \vee |R| = 0$}
+\State $\mathit{secs}\gets\mathit{secs}\cup\{\mathit{cur}\}$
+\State $\mathit{cur}\gets\emptyset$
+\For{$p \in \Delta$}
+\State $N_s(p)\gets 0$
+\EndFor
+%\State $\forall S \in\{S_1,S_2,\ldots\}S\gets\emptyset$
+%\State $N_r\gets 0$
+%\State $N_k\gets\Call{min}{|\mathit{sender}|\times k, |R|}$
+\EndIf
+\EndWhile
+\end{algorithmic}
+\end{algorithm}
+
+
+
+\begin{comment}
+
+\begin{algorithm}
+\caption{Process Sectioning}\label{algo:main}
+\begin{algorithmic}[1]
+\For{$p_t\in \mathit{P}$}
+\State let $R_t$ be the sequence of receives in $p_t$
+\State let $S_t$ be the set of sequences of sends where each sequence contains the sends from a specific sender to $p_t$
+\While{$|R_t|>0$}
+\State $N_k\gets$\Call{SectionMatch}{$\mathit{k}$}
+\State $(P_r,P_s)\gets$\Call{DistributeSends}{$R_t$,$S_t$,$N_k$}
+\State $M\gets$\Call{MatchApprox}{$P_r$,$P_s$}
+\EndWhile
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+
+\begin{figure*}[tb]
+\centering
+\scalebox{0.8}{
+\mprset{flushleft}
+\begin{mathpar}
+\inferrule[Deterministic Receive Command]
+{
+\mathit{frm}(r_0) = p_f \\ P_r = (r_a \ldots \bot) \\ P_r^\prime =  (r_0\ r_a\ \ldots \bot) \\
+P_s(f) = (s_b\ \ldots\ \bot) \\ P_s^\prime = P_s[f\rightarrow(s_{f0}\ s_b\ \ldots\ \bot)] \\
+N_k^\prime = N_k-1
+}{
+((r_0\ r_1\ \ldots\ \bot)\ ((0\rightarrow(s_0\ s_1\ \ldots\ \bot))\ \ldots (f\rightarrow(s_{f0}\ s_{f1}\ \ldots\ \bot))\ \ldots \bot)\ P_r\ P_s\ N_k)
+\reduce{m} \\
+((r_1\ \ldots\ \bot)\ ((0\rightarrow(s_0\ s_1\ \ldots\ \bot))\ \ldots (f\rightarrow(s_{f1}\ \ldots\ \bot))\ \ldots \bot)\ P_r^\prime\ P_s^\prime\ N_k^\prime)
+}
+\and
+\inferrule[Wildcard Receive Command]
+{
+\mathit{frm}(r_0) = \ast \\ P_r = (r_a \ldots \bot) \\ P_r^\prime =  (r_0\ r_a\ \ldots \bot) \\
+\forall f^\prime\in \mathit{frm}_t, P_s(f)\le P_s(f^\prime) \\ P_s(f) = (s_b\ \ldots\ \bot) \\ P_s^\prime = P_s[f\rightarrow(s_{f0}\ s_b\ \ldots\ \bot)] \\
+N_k^\prime = N_k-1
+}{
+((r_0\ r_1\ \ldots\ \bot)\ ((0\rightarrow(s_0\ s_1\ \ldots\ \bot))\ \ldots (f\rightarrow(s_{f0}\ s_{f1}\ \ldots\ \bot))\ \ldots \bot)\ P_r\ P_s\ N_k)
+\reduce{m} \\
+((r_1\ \ldots\ \bot)\ ((0\rightarrow(s_0\ s_1\ \ldots\ \bot))\ \ldots (f\rightarrow(s_{f1}\ \ldots\ \bot))\ \ldots \bot)\ P_r^\prime\ P_s^\prime\ N_k^\prime)
+}
+\end{mathpar}
+}
+\caption{Machine reductions ($\reduce{m}$). }
+\label{fig:machine}
+\end{figure*}
+
+\end{comment}
+
+
+\subsection{Process Sectioning}
+
+At a low level, the presentation needs to first explain a few data structures that are essential to \algoref{algo:main}.
+$R$ is a list of all the sequential receives in a process.
+$\Delta$ is a set of IDs of all the senders $\{p_1, p_2, \ldots\}$.
+%$N_k$ is the number of receives in a single section.
+%$N_r$ is a number to count the receives added to the section and is initialized to $0$.
+The current section $\mathit{cur}$ represents a new program that contains only sends and receives. It is initialized to an empty set.
+The set $\mathit{secs}$ is used to store all the partitioned sections.
+
+The algorithm also applies a few auxiliary functions. 
+$\Call{S}{p}$ returns a list of sends for the sender $p$.
+$\Call{$N_S$}{p}$ returns the count of sends directed to the current section by the sender $p$.
+$\Call{dequeue}{L}$ removes and returns the first element in the list $L$.
+$\Call{frm}{r}$ returns the sender ID of the receive $r$.
+
+Given the data structures and functions, \algoref{algo:main} runs in several steps: 
+\begin{compactenum}
+\item Dequeuing the first receive $r$ from the list $R$ (line 2);
+\item Choosing a sender $p$ based on the sender ID of $r$ (line 3 to line 7);
+\item Incrementing the count $N_s(p)$ and dequeuing the first send $s$ from the send list of $p$ (line 8 to line 9);
+%\item Removing the sender $S$ from $\mathit{sender}$ if there are no sends remained in $S$ (line 11 to line 13);
+\item Adding the combination of $r$ and $s$ to the current section $\mathit{cur}$ (line 10);
+\item Adding the current section $\mathit{cur}$ to the set $\mathit{secs}$ and then resetting $\mathit{cur}$ and $N_s$ once $N_s(p)$ is greater or equal to $k$ for each sender $p\in\Delta$ or there are no sends in $S(p)$ or there are no receives in the destination process (line 11 to line 17);
+\item Repeating the above steps until $R$ is empty (line 1).
+\end{compactenum}
+
+
+%$N_k$ is computed given two parameters: $|\mathit{sender}|\times\mathit{k}$ and $|R|$. The intuition is that the algorithm, if possible, distributes roughly average $k$ sends from each sender and therefore, adds $\mathit{sender}|\times\mathit{k}$ receives to a section. If there are not sufficient receives in $R$, then the algorithm adds all that remained in $R$ to the section, where the number is $|R|$. 
+
+For each receive $r$, if the sender ID is $\ast$ indicating $r$ is wildcard, then the algorithm randomly chooses a sender $p$ that has the minimum count among the senders where each sender has at least one send at line 4. If $r$ is a deterministic receive, then $p$ is the specific sender for $r$ at line 6.
+
+The intuition of the condition at line 11 is that each sender must distribute roughly $k$ sends to the current section unless the receive list $R$ is already empty. The sender may distribute more than $k$ sends as if more than $k$ deterministic receives that specify the sender are added to the section. If the total number of sends in the sender is less than $k$, then all the sends must be distributed from that sender.  
+
+%If a section is matched at line 11, the variables $\mathit{cur}$ and $N_s$ need to be reset at line 13 to line 16. 
+
+%Finally, the set $\mathit{sections}$ is input to the existing algorithm for match pair generation \cite{DBLP:conf/kbse/HuangMM13}, where the match pairs are generated independently for each section. 
+
+ 
+ \subsection{Match Pair Approximation}
+
+Given the partitioned sections in the set $\mathit{secs}$ by \algoref{algo:main}, the match pairs for each section can be generated independently by the existing algorithm in the prior work \cite{DBLP:conf/kbse/HuangMM13}. 
+
+Intuitively, the algorithm checks all the pairs of receives and sends in each section, and prunes obvious matches that cannot exist in any runtime implementation of the specification by comparing ranks of sends and receives. 
+A rank of a receive is its position in the list $R$. 
+A rank of a send is its position in the send list $S(p)$ from the sender $p$ to the receiver.    
+
+The existing algorithm implies the ``match over-approximation" property, in that all the precise match pairs (and maybe some unprecise match pairs) in the section are generated.
+Please refer to the prior work \cite{DBLP:conf/kbse/HuangMM13} for more detail of the algorithm. 
+
+%\subsection{Match Pair Generation for The Example}
+
+ 
+ 
+
+\begin{comment}
+$\mathit{P}$ is a set of all the processes in a CTP. 
+$frm_t$ is a set of the unique identifiers of all the senders for the receiver $p_t$. 
+The identifier of a sender can be removed from $frm_t$ once the sender has no send to be distributed to $p_t$.
+The list $R_t$ contains all the sequential receives in process $p_t$.
+%$\mathit{NR}_{tf}$ is the number of the receives in $R_t$ where they can only match the sends from process $p_f$. 
+%The source can be ``$\ast$" indicating the wildcard receives.
+%If the source is equal to ``$A$", then 
+$\mathit{NR}_{t}$ is the number of all the receives in $R_t$.
+The list $S_{tf}$ contains all the sequential sends from the sender $p_f$ to the receiver $p_t$. 
+$\mathit{NS}_{tf}$ is the number of the sends in $S_{tf}$ that are distributed to a specific section.
+
+Given the data structures defined, the presentation explains \algoref{algo:main} in detail.
+The algorithm iteratively checks each receive at line 2 until $R_t$ is empty.  
+$\mathrm{SECTIONMATCH}$ computes the number of receives in each section at line 3. The value is assigned to $N_k$. 
+$\mathrm{DISTRIBUTESENDS}$ updates the count of the distributed sends ($\mathit{NS}$) from each sender to a common section in the receiver $p_t$ at line 7. 
+$\mathit{NS_{tf}}$ is initialized for each sender $p_f$ at line 4 through line 6.
+$\mathrm{MATCHAPPROX}$ then stores the generated match pairs for each section in $M$ at line 8. 
+Finally, the receives and the sends in each section are removed from the CTP at line 9 through line 14. 
+The function $\mathrm{REMOVE}$ removes elements from the beginning of a list given two inputs: the list to remove from and the number of operations to remove. 
+
+\subsection{Section Match}
+
+$\mathrm{SECTIONMATCH}$ is a simple equation in (3).
+\begin{equation}
+\Call{min}{|frm_t|\times\mathit{k}, \mathit{NR}_{t}}
+\end{equation}
+The function $\mathrm{MIN}$ returns the minimum among two numbers: $|frm_t|\times\mathit{k}$ and $\mathit{NR}_{t}$.
+The first number indicates that the algorithm, if possible, distributes roughly average $k$  sends from each sender and therefore, adds $|frm_t|\times\mathit{k}$ receives to a section. If there are not sufficient receives in $R_t$, then the algorithm adds all that remained in $R_t$ to the section, where the number is $\mathit{NR}_{t}$.
+
+
+\begin{lemma}
+\label{lemma:section}
+Each receive in a CTP is added to exactly one section by \algoref{algo:main}; each send in the CTP is also added to exactly one section if $\mathrm{DISTRIBUTESENDS}$ distributes the same number of sends to match the receives in any section.
+\end{lemma}
+\begin{proof}
+\algoref{algo:main} initializes $N_k$ the number of the receives in a single section by $\mathrm{SECTIONMATCH}$, and removes these receives from $R_t$ immediately after executing $\mathrm{MATCHAPPROX}$ at line 8. It is assumed that the same number of potential sends are distributed to the section by $\mathrm{DISTRIBUTESENDS}$ and are removed from $S_{tf^\prime}$ for each potential sender $p_{f^\prime}$ at line 12. Therefore, a receive or a send can only be added once. 
+Further, \algoref{algo:main} exhaustively matches sections for all the receives in any process $p_t$ until $\mathit{NR}_{t}$ is equal to zero. 
+%Also, it is assumed that the number of sends is equal to the number of receives in a CTP. 
+%Each section also contains equivalent receives and sends. 
+Therefore, all the receives and sends in the CTP are partitioned into sections. 
+$\Box$
+\end{proof}
+\lemmaref{lemma:section} is used to prove the key theorem later in the paper.
+
+\end{comment}
+
+

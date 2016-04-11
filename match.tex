@@ -1,0 +1,41 @@
+\subsection{Match Pair Approximation}
+
+Given the set $\mathit{secs}$ that is output by \algoref{algo:main}, the existing algorithm in the prior work \cite{DBLP:conf/kbse/HuangMM13} is able to generate the match pairs for each section independently. 
+
+Intuitively, the algorithm checks all the pairs of receives and sends in each section, and prunes obvious matches that cannot exist in any runtime implementation of the specification by comparing ranks of sends and receives. 
+A rank of a receive is its position in the list $R$. 
+A rank of a send is its position in the send list $S(p)$ from the sender $p$ to the receiver.    
+
+The existing algorithm implies the ``match over-approximation" property, in that all the precise match pairs (and maybe some unprecise match pairs) in the section are generated.
+Please refer to the prior work \cite{DBLP:conf/kbse/HuangMM13} for more detail of the algorithm. 
+
+\subsection{Match Pair Generation for The Example}
+Given the example in \figref{fig:example}, the algorithm in this paper would initialize $k=1$, meaning that each sender has one send distributed to a section. The algorithm sections process $p_1$ with $k=1$ in equation (3).
+\begin{equation} 
+\mathit{section\ 1: }\{r_0,r_1,s_0,s_3\},\ \mathit{section\ 2: }\{r_2,r_3,s_1,s_4\},\ \mathit{section\ 3: }\{r_4,s_2\}
+\end{equation}
+Since there are two senders for $p_1$, each sender distributes one send to a section to match the same number of receives. 
+For example, \textit{section 1} in equation (3) contains the receives $r_0$ and $r_1$, and the sends $s_0$ and $s_3$. Finally, the match pairs for each section are over-approximated using ranks \cite{DBLP:conf/kbse/HuangMM13}. Intuitively, a rank is the position of a send or a receive in a list. For example, $r_0$ has the rank of ``0" and $r_1$ has the rank of ``1" in the receive list for \textit{section 1}. Given the ranks, the match pairs $\langle r_0\ s_0\rangle$, $\langle r_0\ s_3\rangle$, $\langle r_1\ s_0\rangle$, and $\langle r_1\ s_3\rangle$ are generated for \textit{section 1}.
+The generated match pairs with $k=1$ are sufficient to capture the match solution for the trace in equation (1). 
+Since the match pair $\langle r_1\ s_1\rangle$ is not generated with $k=1$, the trace in equation (2) is not captured. 
+
+The algorithm then increments $k$ to $2$ to repeat match pair generation. 
+\begin{equation}
+\mathit{section\ 1: }\{r_0,r_1, r_2,r_3,s_0,s_1,s_3,s_4\},\ \mathit{section\ 2: }\{r_4,s_2\}
+\end{equation}
+As shown in equation (4), the algorithm with $k=2$ is able to partition process $p_1$ into two sections, and \textit{section 1} groups the receive $r_1$ and the send $s_1$. As such, the match pair $\langle r_1\ s_1\rangle$ is generated.
+
+
+%The existing algorithm implies the ``match over-approximation" property. This paper presents this property in \lemmaref{lemma:match}. 
+
+%\begin{lemma}
+%The existing algorithm \cite{DBLP:conf/kbse/HuangMM13} over-approximates the match pairs for all the receives and sends in a specific section; that is saying, that all the precise match pairs (and maybe some unprecise match pairs) in the section are generated.
+%\label{lemma:match}
+%\end{lemma}
+
+%\begin{proof}
+%\algoref{algo:match} must never claim to be able to prune the precise match pairs. The algorithm considers all the pairs for a send and a receive in a specific section. Also, the condition at line 4 only prunes the pairs that may never occur in the runtime: the first rule validates the endpoints consistent for the send and the receive; the second and third rules validate the FIFO order in message delivery according to the semantics. Therefore, only unprecise match pairs are pruned. $\Box$
+%\end{proof}
+
+
+%The condition at line 4 is then used to soundly prune the pair of $R(p)_i$ and $S(p_s,p)_j$ if they never match in the runtime with three rules. The first rule indicates that $R(p)_i$ is either a wildcard receive (the receive that may match a send from any source) or the source of $R(p)_i$ matches the source of $S(p_s,p)_j$. The second rule indicates that $i$ is greater or equal to $j$ meaning that the sends preceding $S(p_s,p)_j$ in $S(p_s,p)$ have to be matched with the receives in $p$. 

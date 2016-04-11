@@ -1,0 +1,59 @@
+\subsection{Send Distribution}
+\algoref{algo:distribute} implements $\mathrm{DISTRIBUTESENDS}$ in \algoref{algo:main}. Intuitively, the algorithm distributes the potential sends to a specific section by updating the count $\mathit{NS}$ in two phases. In the first phase, $\mathit{NS}$ is updated such that the distributed sends are sufficient to match all the deterministic receives in the section. In the second phase, the algorithm, if needed, distributes roughly average number of sends from each sender to match the remaining wildcard receives in the section. 
+
+\begin{algorithm}
+\caption{Distribute Sends}\label{algo:distribute}
+\begin{algorithmic}[1]
+\State $N\gets N_k$
+\State let $R_t$ be the list $r_0,r_1,\ldots,r_n$
+\For{$i\gets 0$ to $N_k-1$}
+%\If{$r$ is a deterministic receive}
+\State let $p_{f}$ be the source of the receive $r_i$
+\If{$p_{f}\neq\ast$}
+\State $\mathit{NS_{tf}}\gets \mathit{NS_{tf}}+1$
+\State $N\gets N-1$   
+\If{$\mathit{NS_{tf}} = |S_{tf}|$}
+\State $frm_t\gets frm_t\setminus\{p_{f}\}$
+\EndIf
+\EndIf
+%\EndIf
+\EndFor
+%\State $\mathit{avg}\gets (N_{snder}>0) ? N_{rest} / {N_{snder}} : N_{rest}$
+\While{$N>0$}
+\State let $p_{f^\prime}$ be the source where $\mathit{NS_{tf^\prime}}=\Call{MIN}{\forall p_j\in frm_t, \mathit{NS_{tj}}}$
+%\State $\mathit{avg}\gets N / {|Src(p)|}$
+%\For{$p_{s}\in Src(p)$}
+%\If{$\mathit{n_s}(src,dest) < N_s(src,dest)$}
+%\If{$\mathit{n_s}(p_{s},p)<\mathit{K}\vee (\forall p_{s}^\prime\in Src(p),\mathit{n_s}(p_{s},p)\leq\mathit{n_s}(p_{s}^\prime,p))$}
+%\State $N_s^+ = \Call{min}{avg,N_s(p_{s},p)-\mathit{n_s}(p_{s},p)}$
+\State $\mathit{NS_{tf^\prime}}\gets \mathit{NS_{tf^\prime}}+1$
+\State $N\gets N-1$   
+\If{$\mathit{NS_{tf^\prime}} = |S_{tf^\prime}|$}
+\State $frm_t\gets frm_t\setminus\{p_{f^\prime}\}$
+\EndIf
+%\EndIf
+%\EndIf
+%\EndFor
+\EndWhile
+\end{algorithmic}
+\end{algorithm}
+
+
+$N$ is the total number of sends that need to be distributed and is initialized to $N_k$ at line 1. The first phase checks each receive at line 3 through line 12. For each deterministic receive, the algorithm increments the count $\mathit{NS}_{tf}$ by one and decrements the count $N$ by one at line 6 and line 7 respectively.  
+The intuition is that for any deterministic receive for the sender $p_f$, there has to be at least one send from $p_f$ to match the receive. 
+If the algorithm detects that all the sends from $p_f$ to $p_t$ are distributed at line 8, then $p_f$ is removed from $frm_t$ at line 9, indicating that $p_f$ cannot be considered as a potential sender for $p_t$. 
+
+If all the receives in the section are deterministic, then \algoref{algo:distribute} is complete after the first phase. 
+Otherwise, the second phase (line 13 through line 20) iteratively distributes the sends from all potential senders until $N$ is equal to zero at line 13.
+The algorithm first randomly picks up a sender $p_{f^\prime}$ with the least value of $\mathit{NS}_{tf^\prime}$ at line 14. The intuition is that each time the algorithm intends to select a candidate sender for send distribution where the sender has the lowest number of sends in the section. This strategy averages the number of the distributed sends from all potential senders.
+Similar to the first phase, the algorithm then increments the count $\mathit{NS}_{tf^\prime}$ by one and decrements the count $N$ by one at line 15 and line 16 respectively. Also, $p_{f^\prime}$ is removed from $frm_t$ at line 18 if all the sends from $p_{f^\prime}$ to $p_t$ are distributed.
+
+\begin{lemma}
+\algoref{algo:distribute} distributes $N_k$ sends from multiple senders to a single section for matching the same number of receives in the section.
+\label{lemma:distribute}
+\end{lemma}
+\begin{proof}
+$N$ is initialized to $N_k$. $N$ is decremented by one for each deterministic receive in the first phase and for each wildcard receive in the second phase. Therefore, the total number $N_k$ of sends are distributed by \algoref{algo:distribute}. Also, since the input $N_k$ is the number of receives in the section, the number of sends is equal to the number receives in the same section. 
+$\Box$
+\end{proof}
+

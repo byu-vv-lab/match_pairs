@@ -1,0 +1,141 @@
+\newcommand{\reduce}[1]{\ensuremath{\rightarrow_{#1}}}
+
+\newsavebox{\boxTZero}
+\begin{lrbox}{\boxTZero}
+\begin{minipage}[t]{0.4\linewidth}
+\large
+\begin{alltt}
+\(r\sb{0}(from \ast, to p\sb{1}, w\sb{0})\)
+\(w\sb{0}(r\sb{0})\)
+\(r\sb{1}(from \ast, to p\sb{1}, w\sb{1})\)
+\(w\sb{1}(r\sb{1})\)
+\(r\sb{2}(from p\sb{2}, to p\sb{1}, w\sb{2})\)
+\(w\sb{2}(r\sb{2})\)
+\(s\sb{5}(from p\sb{1}, to p\sb{2})\)
+\(r\sb{3}(from \ast, to p\sb{1}, w\sb{3})\)
+\(w\sb{3}(r\sb{3})\)
+\(r\sb{4}(from \ast, to p\sb{1}, w\sb{4})\)
+\(w\sb{4}(r\sb{4})\)
+\end{alltt}
+\end{minipage}
+\end{lrbox}
+
+\newsavebox{\boxTOne}
+\begin{lrbox}{\boxTOne}
+\begin{minipage}[t]{0.4\linewidth}
+\large
+\begin{alltt}
+\(s\sb{0}(from p\sb{2}, to p\sb{1})\)
+\(s\sb{1}(from p\sb{2}, to p\sb{1})\)
+\(r\sb{5}(from p\sb{1}, to p\sb{2}, w\sb{5})\)
+\(w\sb{5}(r\sb{5})\)
+\(s\sb{2}(from p\sb{2}, to p\sb{1})\)
+\end{alltt}
+\end{minipage}
+\end{lrbox}
+
+\newsavebox{\boxTTwo}
+\begin{lrbox}{\boxTTwo}
+\begin{minipage}[t]{0.4\linewidth}
+\large
+\begin{alltt}
+\(s\sb{3}(from p\sb{3}, to p\sb{1})\)
+\(s\sb{4}(from p\sb{3}, to p\sb{1})\)
+\end{alltt}
+\end{minipage}
+\end{lrbox}
+
+% ---------------------------------------------------------------------
+% END Save boxes
+% ---------------------------------------------------------------------
+
+\newcommand\examplefigone{
+\begin{figure*}[tb]
+\begin{center}
+\setlength{\tabcolsep}{2pt}
+\begin{tabular}[t]{c|c|c}
+$\mathit{p_1}$ & $\mathit{p_2}$ & $\mathit{p_3}$ \\
+\hline
+\scalebox{0.75}{\usebox{\boxTZero}}&
+\scalebox{0.75}{\usebox{\boxTOne}} &
+\scalebox{0.75}{\usebox{\boxTTwo}}
+\end{tabular}
+\end{center}
+\caption{A simple concurrent trace program.}
+\label{fig:example}
+\end{figure*}
+}
+
+\newsavebox{\TemplateboxTZero}
+\begin{lrbox}{\TemplateboxTZero}
+\begin{minipage}[t]{0.4\linewidth}
+\large
+\begin{alltt}
+\(r\sb{0}(from \ast, to p\sb{r}, w\sb{0})\)
+\(w\sb{0}(r\sb{0})\)
+\(r\sb{1}(from \ast, to p\sb{r}, w\sb{1})\)
+\(w\sb{1}(r\sb{1})\)
+\ldots
+\end{alltt}
+\end{minipage}
+\end{lrbox}
+
+\newsavebox{\TemplateboxTOne}
+\begin{lrbox}{\TemplateboxTOne}
+\begin{minipage}[t]{0.35\linewidth}
+\large
+\begin{alltt}
+\(s\sb{0}(from p\sb{1}, to p\sb{r})\)
+\(s\sb{1}(from p\sb{1}, to p\sb{r})\)
+\ldots
+\end{alltt}
+\end{minipage}
+\end{lrbox}
+
+\newsavebox{\TemplateboxTTwo}
+\begin{lrbox}{\TemplateboxTTwo}
+\begin{minipage}[t]{0.05\linewidth}
+\large
+\begin{alltt}
+\ldots
+\end{alltt}
+\end{minipage}
+\end{lrbox}
+
+\newsavebox{\TemplateboxTThree}
+\begin{lrbox}{\TemplateboxTThree}
+\begin{minipage}[t]{0.35\linewidth}
+\large
+\begin{alltt}
+\(s\sb{m0}(from p\sb{m}, to p\sb{r})\)
+\(s\sb{m1}(from p\sb{m}, to p\sb{r})\)
+\ldots
+\end{alltt}
+\end{minipage}
+\end{lrbox}
+
+\newcommand\examplefigtemplate{
+\begin{figure*}[tb]
+\begin{center}
+\setlength{\tabcolsep}{2pt}
+\begin{tabular}[t]{c|c|c|c}
+$\mathit{p_r}$ & $\mathit{p_1}$ & $\ldots$ &$\mathit{p_m}$ \\
+\hline
+\scalebox{0.75}{\usebox{\TemplateboxTZero}}&
+\scalebox{0.75}{\usebox{\TemplateboxTOne}} &
+\scalebox{0.75}{\usebox{\TemplateboxTTwo}} &
+\scalebox{0.75}{\usebox{\TemplateboxTThree}}
+
+\end{tabular}
+\end{center}
+\caption{A template concurrent trace prorgam.}
+\label{fig:Texample}
+\end{figure*}
+}
+
+
+
+
+
+
+
