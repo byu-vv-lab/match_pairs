@@ -1,3 +1,4 @@
+%!TEX root = paper.tex
 \subsection{Send Distribution}
 \algoref{algo:distribute} implements $\mathrm{DISTRIBUTESENDS}$ in \algoref{algo:main}. Intuitively, the algorithm distributes the potential sends to a specific section by updating the count $\mathit{NS}$ in two phases. In the first phase, $\mathit{NS}$ is updated such that the distributed sends are sufficient to match all the deterministic receives in the section. In the second phase, the algorithm, if needed, distributes roughly average number of sends from each sender to match the remaining wildcard receives in the section. 
 

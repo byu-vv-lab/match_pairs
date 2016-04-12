@@ -1,4 +1,5 @@
- \section{Introduction}
+%!TEX root = paper.tex
+\section{Introduction}
 %Asynchronous message passing is a prevalent programming model in high performance computing (HPC). The model consists of two operations, send and receive, that are essential to message communication. The message communication is complicated because of the non-determinism that a receive may be matched with more than one send in the runtime. The use of match pair, a pair of a send and a receive that may potentially match in the runtime, is able to capture the message communication.
 %The semantics can also be complicated because of two buffering settings in the runtime, infinite buffer (messages are buffered in the system) and zero buffer (no buffering in the system). Further, typical message passing standard such as message passing interface (MPI) specifies a special communication that uses collective operations to synchronize a program leading to a more complex program behavior. 
 %Given the semantics, several common problems exist in message passing applications: the user-provided assertion may be violated in an execution; the program may deadlock for unexpected matching of receives; and the program may be incompatible with zero buffer semantics, meaning that no feasible schedule exists under zero buffer setting. 
