@@ -1,7 +1,11 @@
 %!TEX root = paper.tex
-\section{Concurrent Trace Program Definition and Semantics}
+\section{Examples}
 
-\examplefigone
+
+\syncexample
+
+\readyexample
+%\examplefigone
 
 This section explains message communication in a simple CTP consisting of a handful of operations. Consider the CTP in \figref{fig:example} that includes three processes that use non-blocking send ($s$) and non-blocking receive ($r$) for message communication. The nearest-enclosing wait ($w$) witnesses the completion of the receive \cite{DBLP:conf/kbse/HuangMM13}. The completion of any send or receive, is only confirmed when the send or the receive is matched in the runtime. Note that if the sender ID for a receive is ``$\ast$", then the receive is wildcard meaning that it may match a send from any sender. 
 %The declarations of the local variables are omitted for space. The other operations related to computation are also omitted because they are not essential to the algorithm in the paper.

@@ -1,4 +1,67 @@
 %!TEX root = paper.tex
+ \section{Introduction}
+%basic idea of message passing with different send modes. The problem of sends modes, its importance, and why it is difficult: message non-determinism.
+Message Passing Interface (MPI) is a prevalent programming model in high performance computing (HPC).
+The idea of message passing in MPI programs is simple at the outset; A message is communicated by matching a send and a receive in the runtime. Despite the simplicity of the programming model, MPI supports four send modes in message passing that makes the semantics much more complicated.
+\begin{compactitem}
+\item The regular send does not return until the send buffer can be used. 
+\item The buffered send has to buffer the message in the system and returns immediately as it is issued. 
+\item The synchronous send does not return until the matching receive is issued in the runtime. 
+\item The ready send may returns correctly if the matching receive is already issued in the runtime; otherwise, an error message is sent out.
+\end{compactitem}
+A problem in any MPI program is the violation of send modes.
+In particular, the synchronous send may be incompatible with an MPI program where the send can not return in any possible schedule, therefore makes the program deadlock.  
+Also, the ready send may return before the matching receive is issued, where an error message is sent out in the execution. 
+%The regular send and buffered send may also be violated due to improper implementation of system buffer. For example, the regular send may return without freeing the send buffer. The buffered send may incorrectly buffer the message. This paper assumes the correct usage of buffering system and focuses on the problem of synchronous send and ready send.
+The problem of verifying synchronous send and ready send is essential to any MPI application since it is difficult for a developer to predict. This problem is also much difficult because of the message non-determinism, where concurrent sends to a process may arrive in any order. As such, a receive may potentially match with more than one send in the runtime system. 
+
+%prior work on verifying message passing programs, not able to verify send modes,
+Prior work on verifying MPI programs can be roughly grouped into dynamic analysis where an existing runtime is manipulated to explore different scheduling outcomes \cite{DBLP:conf/ppopp/VakkalankaSGK08,DBLP:conf/sbmf/SharmaGB12}, model checking where a model of the original program is analyzed \cite{DBLP:conf/vmcai/Siegel07,DBLP:conf/pvm/Siegel07}, runtime verification where the program execution is observed but not manipulated \cite{DBLP:conf/sc/VetterS00,DBLP:conf/parco/KrammerBMR03,DBLP:conf/ptw/HilbrichSSM09}, and symbolic model checking where a model of the program is symbolically analyzed with an SMT solver \cite{DBLP:conf/kbse/HuangMM13,HuangNFM15}. While many of the solutions are able to verify message non-determinism, None of them is specific to verifying MPI sends modes.
+
+
+%our solution: SMT
+%novelty and the relation to the old algorithm 
+This paper looks specifically at symbolic model checking and ways to better leverage the SMT solver in verifying send modes in MPI programs. 
+The most efficient types of encoding for symbolic model checking of MPI programs, where efficient means they scale to programs with a high degree of message non-determinism, rely on the concept of a \emph{match pair} and a \emph{concurrent trace program} abstraction (CTP) \cite{DBLP:conf/kbse/HuangMM13,HuangNFM15,DBLP:conf/fm/ForejtKNS14,DBLP:conf/atva/ElwakilYW10,DBLP:conf/issta/ElwakilY10}. 
+A CTP is an abstraction of the program that removes all branching so each process is a sequence of send and receive operations \cite{DBLP:conf/kbse/HuangMM13,HuangNFM15}. 
+The abstraction is constructed by observing the execution of the program in the runtime for a given input. 
+This paper presents a symbolic model checking that gives the SMT solver an encoded CTP with a set of match pairs, and the solver then tries to resolve the encoding to prove the compatibility of synchronous send or to detect the violation of ready send. 
+
+In particular, this paper presents how to encode the behavior of synchronous send and ready send into SMT formulas. The formula size is quadratic. 
+As MPI point-to-point communication is also essential to verifying MPI send modes, this paper adapts the existing encoding rules for MPI semantics \cite{HuangNFM15}. 
+The new encoding, if satisfiable, is sufficient to prove a CTP to be synchronous send compatible. To detect the violation of ready send, one more step is needed, where the intended erroneous  behavior of ready sends is encoded with the satisfiable encoding. If the combined encoding is also satisfiable, a violation of ready send is detected. To our knowledge, the new encoding in this paper is the first verification approach for solving the problem of send modes.
+
+%why need small match set, 
+Another important factor for an efficient SMT encoding is the size of the input match pair set. A large input set typically means an expensive solver call especially if there is a high-degree of message non-determinism. 
+The idea in this paper is to reduce the cost of the solver call by reducing the size of the input match set to each call. Such a reduction cannot, however, be done naively; any match pair set must be \emph{message complete}.  A message complete match pair set for a CTP is one that lets the program run to completion (assuming it is free of deadlock). 
+
+%our solution for match generation
+This paper present a new algorithm that generates the match pairs in two steps. 
+First, each process is sectioned, where a section contains a sequence of receives in the process and a number of sends from all the senders that may potentially match these receives. The number of sends from each sender is roughly bounded by  $k$ given as a user input. 
+%For each section, the algorithm precisely adds a set of sequences of sends from multiple potential sender processes. 
+The sends from each sender are distributed sequentially. 
+The total number of the sends distributed to the section is equal to the number of receives in the same section. 
+%The number of the receives depends on three values that are statically known: the positive integer $k$ configured by the user, the number of all the potential sender processes and the number of the unmatched receives in the process. 
+Match pairs are then generated for each section independently. This independent sectioning effectively ignores combinations of match pairs, that are feasible, but only available when the considered concurrent outstanding sends are more than the number of receives in the section. 
+The algorithm generates the match pairs for the sends and receives in each section by a list of simple rules based on ranks \cite{DBLP:conf/kbse/HuangMM13}. A rank is a non-negative integer that represents the position of a send or a receive in a specific sequence in the section.
+
+%Given the algorithm for match pair generation, the approach in this paper starts with $k=1$ and increments $k$ to a larger bound such that the number of the divided sections is changed, because the match pair generation for the new iteration is only meaningful if each process is sectioned differently. The growth of the size of the match pair set is polynomial as $k$ increases. The program property is then witnessed with the larger bound $k$; or the process repeats.
+
+%contribution
+To summarize, the main contributions of this paper include,
+\begin{compactitem}
+\item a new SMT encoding that is capable of proving the compatibility of synchronous send and detecting the violation of ready send,
+\item an efficient algorithm that under-approximates the precise match pairs for a CTP, and
+\item a set of benchmarks that demonstrate the new encoding with the under-approximation algorithm for match pairs is correct and is more efficient then a state-of-art MPI verifier. 
+\end{compactitem}
+
+The rest of the paper is organized as follows: 
+Sections 2 presents two examples of CTP; Section 3 presents a few trivial rules for encoding MPI send modes; Section 4 discusses the new encoding and how it is able to prove synchronous send compatibility and to detect ready send violation;
+Section 5 presents the general algorithm for match pair generation in the paper; Section 6 states that the precise match pairs can be generated; Section 7 gives the experimental results; Section 8 discusses the related work; and Section 9 is the conclusion and future work.
+
+
+\begin{comment}
+%!TEX root = paper.tex
 \section{Introduction}
 %Asynchronous message passing is a prevalent programming model in high performance computing (HPC). The model consists of two operations, send and receive, that are essential to message communication. The message communication is complicated because of the non-determinism that a receive may be matched with more than one send in the runtime. The use of match pair, a pair of a send and a receive that may potentially match in the runtime, is able to capture the message communication.
 %The semantics can also be complicated because of two buffering settings in the runtime, infinite buffer (messages are buffered in the system) and zero buffer (no buffering in the system). Further, typical message passing standard such as message passing interface (MPI) specifies a special communication that uses collective operations to synchronize a program leading to a more complex program behavior. 
@@ -16,7 +79,7 @@ The abstraction is constructed by observing the execution of the program in the 
 %The symbolic model checking requires a over-approximated set of match pairs as input. The set includes all the true match pairs and maybe a few match pairs that may never occur in the runtime. 
 %The work then encodes the CTP into an SMT problem that uses a set of formulas to constrain the program behavior based on the semantics. The typical error such as deadlock, zero buffer incompatibility or assertion violation is then checked by solving the SMT problem. If a satisfying assignment exists for the SMT problem, then the error is detected where the match pairs are resolved to capture the message communication in a feasible program execution. If the SMT problem is unsatisfiable, the CTP is free of that error because no feasible schedule exists with any resolution of the match pairs. 
 
-The size of the input match-pair set directly impacts the cost of the call to the SMT solver in the symbolic model checking of message passing programs; a large input set typically means an expensive solver call especially if there is a high-degree of message non-determinism. The idea in this paper is to reduce the cost of the solver call by reducing the size of the input match set to each call. Such a reduction cannot, however, be done naively; any match pair set must be \emph{message complete}.  A message complete match pair set for a CTP is one that lets the program run to completion (assuming it is free of deadlock). 
+The size of the input match-pair set directly impacts the cost of the call to the SMT solver in the symbolic model checking of message passing programs; a large input set typically means an expensive solver call especially if there is a high-degree of message non-determinism. The idea in this paper is to reduce the cost of the solver call by reducing the size of the input match set to each call. Such a reduction cannot, however, be done naively; any match pair set must be \emph{message complete}.  A message complete match pair set for a CTP is one that lets the program run to completion (assuming it is free of deadlock). To reduce the number of match pairs and thereby decrease the cost of verification, this paper describes an iterative algorithm to successively generate under-approximations of the true set of match pairs until all match pairs are generated. The under-approximations retain the message complete property. 
 
 %As such, reducing the size of the input match pair set directly impacts the run time cost, typically, of the SMT solver. A straightforward idea to improve the performance, therefore, is to reduce the number of the match pairs. A naive way of reducing the match pairs such as randomly selecting a subset of the match pairs, however, is not sufficient. The input set of match pairs must be sufficient to complete the message communication in a program execution if the CTP is free of deadlock. A match pair set that has this property for a given CTP is termed \emph{message complete}.
 %The input match pairs must satisfy two properties: program completion (the program can run to completion assuming no deadlocks exist) and message non-determinism (the set has a certain degree of non-determinism such that a receive may be associated with more than one match pairs).  
@@ -63,3 +126,5 @@ The contributions include,
 
 The rest of the paper is organized as follows: 
 Sections 2 presents the definition and semantics of CTP; Section 3 presents the general algorithm in the paper; Section 4 states that the precise match pairs can be generated; Section 5 gives the experimental results; Section 6 discusses the related work; and Section 7 is the conclusion and future work.
+
+\end{comment}

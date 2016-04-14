@@ -1,9 +1,122 @@
 %!TEX root = paper.tex
 \newcommand{\reduce}[1]{\ensuremath{\rightarrow_{#1}}}
 
+\newsavebox{\syncZero}
+\begin{lrbox}{\syncZero}
+\begin{minipage}[t]{0.6\linewidth}
+\large
+\begin{alltt}
+\(ss\sb{0}(from p\sb{1}, to p\sb{3})\)
+\(s\sb{1}(from p\sb{1}, to p\sb{2})\)
+\end{alltt}
+\end{minipage}
+\end{lrbox}
+
+\newsavebox{\syncOne}
+\begin{lrbox}{\syncOne}
+\begin{minipage}[t]{0.6\linewidth}
+\large
+\begin{alltt}
+\(r\sb{0}(from p\sb{1}, to p\sb{2})\)
+\(s\sb{2}(from p\sb{2}, to p\sb{3})\)
+\end{alltt}
+\end{minipage}
+\end{lrbox}
+
+\newsavebox{\syncTwo}
+\begin{lrbox}{\syncTwo}
+\begin{minipage}[t]{0.6\linewidth}
+\large
+\begin{alltt}
+\(r\sb{1}(from p\sb{2}, to p\sb{3})\)
+\(r\sb{2}(from \ast, to p\sb{3})\)
+\end{alltt}
+\end{minipage}
+\end{lrbox}
+
+
+\newcommand\syncexample{
+\begin{figure*}[tb]
+\begin{center}
+\setlength{\tabcolsep}{2pt}
+\begin{tabular}[t]{c|c|c}
+$\mathit{p_1}$ & $\mathit{p_2}$ & $\mathit{p_3}$ \\
+\hline
+\scalebox{0.8}{\usebox{\syncZero}}&
+\scalebox{0.8}{\usebox{\syncOne}} &
+\scalebox{0.8}{\usebox{\syncTwo}}
+\end{tabular}
+\end{center}
+\caption{A simple concurrent trace program with synchronous send.}
+\label{fig:syncexample}
+\end{figure*}
+}
+
+\newsavebox{\readyZero}
+\begin{lrbox}{\readyZero}
+\begin{minipage}[t]{0.6\linewidth}
+\large
+\begin{alltt}
+\(r\sb{0}(from \ast, to p\sb{1})\)
+\(r\sb{1}(from \ast, to p\sb{1})\)
+\(r\sb{2}(from p\sb{2}, to p\sb{1})\)
+\(s\sb{5}(from p\sb{1}, to p\sb{2})\)
+\(r\sb{3}(from \ast, to p\sb{1})\)
+\(r\sb{4}(from \ast, to p\sb{1})\)
+\end{alltt}
+\end{minipage}
+\end{lrbox}
+
+\newsavebox{\readyOne}
+\begin{lrbox}{\readyOne}
+\begin{minipage}[t]{0.6\linewidth}
+\large
+\begin{alltt}
+\(s\sb{0}(from p\sb{2}, to p\sb{1})\)
+\(rs\sb{1}(from p\sb{2}, to p\sb{1})\)
+\(r\sb{5}(from p\sb{1}, to p\sb{2})\)
+\(s\sb{2}(from p\sb{2}, to p\sb{1})\)
+\end{alltt}
+\end{minipage}
+\end{lrbox}
+
+\newsavebox{\readyTwo}
+\begin{lrbox}{\readyTwo}
+\begin{minipage}[t]{0.6\linewidth}
+\large
+\begin{alltt}
+\(s\sb{3}(from p\sb{3}, to p\sb{1})\)
+\(s\sb{4}(from p\sb{3}, to p\sb{1})\)
+\end{alltt}
+\end{minipage}
+\end{lrbox}
+
+
+\newcommand\readyexample{
+\begin{figure*}[tb]
+\begin{center}
+\setlength{\tabcolsep}{2pt}
+\begin{tabular}[t]{c|c|c}
+$\mathit{p_1}$ & $\mathit{p_2}$ & $\mathit{p_3}$ \\
+\hline
+\scalebox{0.8}{\usebox{\readyZero}}&
+\scalebox{0.8}{\usebox{\readyOne}} &
+\scalebox{0.8}{\usebox{\readyTwo}}
+\end{tabular}
+\end{center}
+\caption{A simple concurrent trace program with ready send.}
+\label{fig:readyexample}
+\end{figure*}
+}
+
+
+
+
+
+
 \newsavebox{\boxTZero}
 \begin{lrbox}{\boxTZero}
-\begin{minipage}[t]{0.4\linewidth}
+\begin{minipage}[t]{0.6\linewidth}
 \large
 \begin{alltt}
 \(r\sb{0}(from \ast, to p\sb{1}, w\sb{0})\)
@@ -23,7 +136,7 @@
 
 \newsavebox{\boxTOne}
 \begin{lrbox}{\boxTOne}
-\begin{minipage}[t]{0.4\linewidth}
+\begin{minipage}[t]{0.6\linewidth}
 \large
 \begin{alltt}
 \(s\sb{0}(from p\sb{2}, to p\sb{1})\)
@@ -37,7 +150,7 @@
 
 \newsavebox{\boxTTwo}
 \begin{lrbox}{\boxTTwo}
-\begin{minipage}[t]{0.4\linewidth}
+\begin{minipage}[t]{0.6\linewidth}
 \large
 \begin{alltt}
 \(s\sb{3}(from p\sb{3}, to p\sb{1})\)
@@ -57,9 +170,9 @@
 \begin{tabular}[t]{c|c|c}
 $\mathit{p_1}$ & $\mathit{p_2}$ & $\mathit{p_3}$ \\
 \hline
-\scalebox{0.75}{\usebox{\boxTZero}}&
-\scalebox{0.75}{\usebox{\boxTOne}} &
-\scalebox{0.75}{\usebox{\boxTTwo}}
+\scalebox{0.8}{\usebox{\boxTZero}}&
+\scalebox{0.8}{\usebox{\boxTOne}} &
+\scalebox{0.8}{\usebox{\boxTTwo}}
 \end{tabular}
 \end{center}
 \caption{A simple concurrent trace program.}
@@ -135,6 +248,57 @@ $\mathit{p_r}$ & $\mathit{p_1}$ & $\ldots$ &$\mathit{p_m}$ \\
 }
 
 
+\newcommand\encodingptp{
+\begin{figure*}[t]
+\begin{alignat}{6}
+-&
+\begin{aligned}[t]
+&\text{Sequential sends}\, \mathtt{S}\, \text{and}\, \mathtt{S^\prime}\, \text{from a common}\\
+&\text{source to a common destination}\, e_\mathtt{S} = e_\mathtt{S^\prime}
+\end{aligned}
+\qquad && \mathit{time}_\mathtt{S} \prec_\mathtt{HB} \mathit{time}_\mathtt{S^\prime}\\
+-&
+\begin{aligned}[t] 
+&\text{Sequential receives}\, \mathtt{R}\, \text{and}\, \mathtt{R^\prime},\, \text{on a common}\\
+&\text{process},\, e_\mathtt{R} = e_\mathtt{R^\prime}
+\end{aligned}
+\qquad && \mathit{time}_\mathtt{R} \prec_\mathtt{HB} \mathit{time}_\mathtt{R^\prime}\\
+-&\text{Receive \texttt{R} and its nearest-enclosing wait}\, \mathtt{W}_\mathtt{R} 
+\qquad && \mathit{time}_\mathtt{R} \prec_\mathtt{HB} \mathit{time}_{\mathtt{W}_\mathtt{R}}\\
+-&
+\begin{aligned}[t]
+&\text{Sequential order over a nearest-enclosing} \\
+&\text{wait}\, \mathtt{W}_\mathtt{R}\, \text{for a receive \texttt{R} and a send \texttt{S}}
+\end{aligned}
+\qquad && \mathit{time}_{\mathtt{W}_\mathtt{R}} \prec_\mathtt{HB} \mathit{time}_\mathtt{S}\\
+-&
+\begin{aligned}[t]
+&\text{Two Sends, \texttt{S} and}\, \mathtt{S^\prime},\, \text{to a common destination},\\
+&e_{\mathtt{S}}=e_{\mathtt{S^\prime}},\, \text{such that}\,  \mathit{time}_\mathtt{S}\ \mathrm{\prec_\mathtt{HB}}\ \mathit{time}_\mathtt{S^\prime}\, \text{is enforced}
+\end{aligned}
+\qquad&&M_{\mathtt{S}}\ \mathrm{\prec_{\mathtt{HB}}}\ M_{\mathtt{S^\prime}}\\
+-&\text{Match pairs for any receive \texttt{R}} \qquad &&  \bigvee_{\mathtt{S} \in \mathrm{Match}(\mathtt{R})} \langle\mathtt{R},\mathtt{S}\rangle
+\end{alignat}
+\caption{SMT encoding for MPI point-to-point communication.}
+\label{fig:ptp}
+\end{figure*}
+}
+
+\newcommand\encodingsync{
+\begin{figure*}[t]
+\begin{alignat}{2}
+-&\text{Synchronous send \texttt{ss} and its nearest-enclosing wait}\, \mathtt{w}_\mathtt{ss} 
+\qquad && \mathit{time}_\mathtt{ss} \prec_\mathtt{HB} \mathit{time}_{\mathtt{w}_\mathtt{ss}}\\
+-&
+\begin{aligned}[t]
+&\text{Match pair,}\, \langle \mathtt{r},\mathtt{ss}\rangle, \mathtt{w}\, \text{is the nearest-enclosing wait for \texttt{ss}}
+\end{aligned}
+\qquad&&\mathit{time}_\mathtt{r}\ \mathrm{\prec_{\mathtt{HB}}}\ \mathit{time}_\mathtt{w}
+\end{alignat}
+\caption{SMT encoding for MPI synchronous send.}
+\label{fig:syncrule}
+\end{figure*}
+}
 
 
 

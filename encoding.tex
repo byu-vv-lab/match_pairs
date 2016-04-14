@@ -1,0 +1,63 @@
+%!TEX root = paper.tex
+\section{SMT Encoding}
+This section summarizes the SMT encoding rules for MPI point-to-point communication \cite{}, and then presents the new rules for encoding MPI synchronous send. In general, the encoding is generated from a CTP and a set of match pairs.
+
+For every event $\mathtt{e}$ in a CTP, the encoding defines a timestamp $\mathit{time}_\mathtt{e}$, which is an integer. The encoding enforces the event order by defining the \textit{Happens-Before} (\texttt{HB}) relation in \defref{def:hb}.
+
+\begin{definition}
+The \textit{Happens-Before} (\texttt{HB}) operator, denoted as $\prec_\mathtt{HB}$, over two events, $\mathtt{e1}$ and $\mathtt{e2}$ respectively, such that $\mathit{time}_\mathtt{e1}<\mathit{time}_\mathtt{e2}$ holds.
+\label{def:hb}
+\end{definition}
+
+The send and receive operations are encoded as tuples. Note that the values of $e$ and $\mathit{value}$ in a send tuple and the value of $e$ in a receive tuple are fixed in a CTP. 
+
+\begin{definition}
+A send operation, \texttt{s}, \texttt{ss} or \texttt{rs}, is five-tuple of variables:
+\begin{compactenum}
+\item $M$, the timestamp of the matching receive,
+\item $\mathit{time}$, the timestamp of the send,
+\item $e$, the destination endpoint of a message,
+\item $\mathit{src}$, the source endpoint of a message, and
+\item $\mathit{value}$, the transmitted value.
+\end{compactenum}
+\end{definition}
+
+\begin{definition}
+A receive operation, \texttt{r}, is six-tuple of variables:
+\begin{compactenum}
+\item $M$, the timestamp of the matching send,
+\item $\mathit{time}$, the timestamp of the receive,
+\item $e$, the destination endpoint of a message,
+\item $\mathit{src}$, the source endpoint of a message, 
+\item $\mathit{value}$, the received value, and
+\item $\mathit{time}_\mathtt{w}$, the timestamp of the nearest-enclosing \texttt{w}.
+\end{compactenum}
+\label{def:receive}
+\end{definition}
+
+The match pair is defined in \defref{}.
+\begin{definition}
+A match pair, $\langle r\ s\rangle$, for a receive $\mathtt{r}=(M_\mathtt{r},\mathit{time})$
+\label{def:mp}
+\end{definition}
+
+The encoding rules are defined in \figref{}. Generally, rules (1) -- (4) encode the sequential order over events in a single process; rule (5) encodes the \emph{non-overtaking} order for two sequential sends; and rule (6) encodes the match pairs. Intuitively, the match pair in \defref{def:mp} and the encoding in rule (6) enforce that each receive in the CTP is paired with a distinct send. 
+
+\encodingptp
+
+The existing encoding does not need to encode the wait for a send operation. As a synchronous send has to check when it is returned, the new encoding defines the nearest-enclosing wait for a synchronous send in \defref{}.
+
+\begin{definition}
+A nearest-enclosing wait, $\mathtt{w}_\mathtt{ss}$, for a synchronous send, $\mathtt{ss}$, witnesses the return of $\mathtt{ss}$ by indicating that the message is delivered and that all the previous synchronous sends from a common source to a common destination are returned as well.
+\end{definition}
+
+The new encoding rules for synchronous are added as shown in \figref{fig:syncrule}: in each process a synchronous send happens before its nearest enclosing wait (rule (7)); and the matching receive for each synchronous send happens before the nearest-enclosing wait for the send (rule (8)).
+
+\encodingsync
+
+%rules for blocking send
+
+
+
+
+
