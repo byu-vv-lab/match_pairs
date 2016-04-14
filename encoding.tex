@@ -56,7 +56,7 @@ The existing encoding does not need to encode the wait for a send operation. As 
 A nearest-enclosing wait, $\mathtt{w}_\mathtt{ss}$, for a synchronous send, $\mathtt{ss}$, witnesses the return of $\mathtt{ss}$ by indicating that the message is delivered and that all the previous synchronous sends from a common source to a common destination are returned as well.
 \end{definition}
 
-The new encoding rules for synchronous are added as shown in \figref{fig:syncrule}: in each process a synchronous send happens before its nearest enclosing wait (rule (7)); and the matching receive for each synchronous send happens before the nearest-enclosing wait for the send (rule (8)).
+The new encoding rules for synchronous are added as shown in \figref{fig:syncrule}: in each process a synchronous send happens before its nearest enclosing wait (rule (7)); the matching receive for each synchronous send happens before the nearest-enclosing wait for the send (rule (8)); and the nearest-enclosing wait for a synchronous send happens before any event that immediately follows the wait in an identical process (rule(9)).
 
 \encodingsync
 
@@ -68,7 +68,7 @@ To check if a CTP is compatible with synchronous send, the encoding intends to f
 
 \subsection{Violation of Ready Send}
 
-To check the violation of ready send in a CTP, a feasible schedule has to be proved by solving the encoding that is already defined. After that, the encoding adds a property for the intended erroneous behavior for ready sends. The property defined in rule (9) checks whether there is a ready send such that the ordering over the send and its matching receive is incorrect. Incorrect in this context means that the receive is posted after the send is posted in a schedule.
+To check the violation of ready send in a CTP, a feasible schedule has to be proved by solving the encoding that is already defined. After that, the encoding adds a property for the intended erroneous behavior for ready sends. The property defined in rule (10) checks whether there is a ready send such that the ordering over the send and its matching receive is incorrect. Incorrect in this context means that the receive is posted after the send is posted in a schedule.
 
 \encodingready
 
