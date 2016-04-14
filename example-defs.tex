@@ -253,31 +253,31 @@ $\mathit{p_r}$ & $\mathit{p_1}$ & $\ldots$ &$\mathit{p_m}$ \\
 \begin{alignat}{6}
 -&
 \begin{aligned}[t]
-&\text{Sequential sends}\, \mathtt{S}\, \text{and}\, \mathtt{S^\prime}\, \text{from a common}\\
-&\text{source to a common destination}\, e_\mathtt{S} = e_\mathtt{S^\prime}
+&\text{Sequential sends}\, \mathtt{s}\, \text{and}\, \mathtt{s^\prime}\, \text{from a common}\\
+&\text{source to a common destination}\, e_\mathtt{s} = e_\mathtt{s^\prime}
 \end{aligned}
-\qquad && \mathit{time}_\mathtt{S} \prec_\mathtt{HB} \mathit{time}_\mathtt{S^\prime}\\
+\qquad && \mathit{time}_\mathtt{s} \prec_\mathtt{HB} \mathit{time}_\mathtt{s^\prime}\\
 -&
 \begin{aligned}[t] 
-&\text{Sequential receives}\, \mathtt{R}\, \text{and}\, \mathtt{R^\prime},\, \text{on a common}\\
-&\text{process},\, e_\mathtt{R} = e_\mathtt{R^\prime}
+&\text{Sequential receives}\, \mathtt{r}\, \text{and}\, \mathtt{r^\prime},\, \text{on a common}\\
+&\text{process},\, e_\mathtt{r} = e_\mathtt{r^\prime}
 \end{aligned}
-\qquad && \mathit{time}_\mathtt{R} \prec_\mathtt{HB} \mathit{time}_\mathtt{R^\prime}\\
--&\text{Receive \texttt{R} and its nearest-enclosing wait}\, \mathtt{W}_\mathtt{R} 
-\qquad && \mathit{time}_\mathtt{R} \prec_\mathtt{HB} \mathit{time}_{\mathtt{W}_\mathtt{R}}\\
+\qquad && \mathit{time}_\mathtt{r} \prec_\mathtt{HB} \mathit{time}_\mathtt{r^\prime}\\
+-&\text{Receive \texttt{r} and its nearest-enclosing wait}\, \mathtt{w}_\mathtt{r} 
+\qquad && \mathit{time}_\mathtt{r} \prec_\mathtt{HB} \mathit{time}_{\mathtt{w}_\mathtt{r}}\\
 -&
 \begin{aligned}[t]
 &\text{Sequential order over a nearest-enclosing} \\
-&\text{wait}\, \mathtt{W}_\mathtt{R}\, \text{for a receive \texttt{R} and a send \texttt{S}}
+&\text{wait}\, \mathtt{w}_\mathtt{r}\, \text{for a receive \texttt{r} and a send \texttt{s}}
 \end{aligned}
-\qquad && \mathit{time}_{\mathtt{W}_\mathtt{R}} \prec_\mathtt{HB} \mathit{time}_\mathtt{S}\\
+\qquad && \mathit{time}_{\mathtt{w}_\mathtt{r}} \prec_\mathtt{HB} \mathit{time}_\mathtt{s}\\
 -&
 \begin{aligned}[t]
-&\text{Two Sends, \texttt{S} and}\, \mathtt{S^\prime},\, \text{to a common destination},\\
-&e_{\mathtt{S}}=e_{\mathtt{S^\prime}},\, \text{such that}\,  \mathit{time}_\mathtt{S}\ \mathrm{\prec_\mathtt{HB}}\ \mathit{time}_\mathtt{S^\prime}\, \text{is enforced}
+&\text{Two Sends, \texttt{s} and}\, \mathtt{s^\prime},\, \text{to a common destination},\\
+&e_{\mathtt{s}}=e_{\mathtt{s^\prime}},\, \text{such that}\,  \mathit{time}_\mathtt{s}\ \mathrm{\prec_\mathtt{HB}}\ \mathit{time}_\mathtt{s^\prime}\, \text{is enforced}
 \end{aligned}
-\qquad&&M_{\mathtt{S}}\ \mathrm{\prec_{\mathtt{HB}}}\ M_{\mathtt{S^\prime}}\\
--&\text{Match pairs for any receive \texttt{R}} \qquad &&  \bigvee_{\mathtt{S} \in \mathrm{Match}(\mathtt{R})} \langle\mathtt{R},\mathtt{S}\rangle
+\qquad&&M_{\mathtt{s}}\ \mathrm{\prec_{\mathtt{HB}}}\ M_{\mathtt{s^\prime}}\\
+-&\text{Match pairs for any receive \texttt{r}} \qquad &&  \bigvee_{\mathtt{s} \in \mathrm{Match}(\mathtt{r})} \langle\mathtt{r},\mathtt{s}\rangle
 \end{alignat}
 \caption{SMT encoding for MPI point-to-point communication.}
 \label{fig:ptp}
@@ -297,6 +297,18 @@ $\mathit{p_r}$ & $\mathit{p_1}$ & $\ldots$ &$\mathit{p_m}$ \\
 \end{alignat}
 \caption{SMT encoding for MPI synchronous send.}
 \label{fig:syncrule}
+\end{figure*}
+}
+
+
+\newcommand\encodingready{
+\begin{figure*}[t]
+\begin{alignat}{2}
+-&\text{Match pairs for any ready send \texttt{rs}}
+\qquad&&\bigvee_{\mathtt{rs}\in \mathtt{S},\mathtt{r}\in \mathtt{Match}(\mathtt{rs})}\mathit{time}_\mathtt{rs}\ \mathrm{\prec_{\mathtt{HB}}}\ \mathit{time}_\mathtt{r}
+\end{alignat}
+\caption{Program property for MPI ready send.}
+\label{fig:readyrule}
 \end{figure*}
 }
 

@@ -2,6 +2,8 @@
 \section{SMT Encoding}
 This section summarizes the SMT encoding rules for MPI point-to-point communication \cite{}, and then presents the new rules for encoding MPI synchronous send. In general, the encoding is generated from a CTP and a set of match pairs.
 
+\subsection{Point-to-point Communication}
+
 For every event $\mathtt{e}$ in a CTP, the encoding defines a timestamp $\mathit{time}_\mathtt{e}$, which is an integer. The encoding enforces the event order by defining the \textit{Happens-Before} (\texttt{HB}) relation in \defref{def:hb}.
 
 \begin{definition}
@@ -45,7 +47,9 @@ The encoding rules are defined in \figref{}. Generally, rules (1) -- (4) encode 
 
 \encodingptp
 
-The existing encoding does not need to encode the wait for a send operation. As a synchronous send has to check when it is returned, the new encoding defines the nearest-enclosing wait for a synchronous send in \defref{}.
+\subsection{Compatibility of Synchronous Send}
+
+The existing encoding does not need to encode the wait for a send operation. As a synchronous send has to check when it is returned, the new encoding defines the nearest-enclosing wait for a synchronous send in \defref{}. As such, a synchronous send \texttt{ss} is defined as six-tuple of variables $(M,\mathit{time},e,\mathit{src},\mathit{value},\mathit{time}_\mathtt{w_{ss}})$, where $\mathit{time}_\mathtt{w_{ss}}$ is the nearest-enclosing wait for \texttt{ss}.
 
 \begin{definition}
 A nearest-enclosing wait, $\mathtt{w}_\mathtt{ss}$, for a synchronous send, $\mathtt{ss}$, witnesses the return of $\mathtt{ss}$ by indicating that the message is delivered and that all the previous synchronous sends from a common source to a common destination are returned as well.
@@ -55,7 +59,22 @@ The new encoding rules for synchronous are added as shown in \figref{fig:syncrul
 
 \encodingsync
 
+To check if a CTP is compatible with synchronous send, the encoding intends to find a schedule with a valid program order and a feasible matching for sends and receives. If the encoding is satisfiable, meaning that such a schedule exists, the CTP is proved to be synchronous send compatible. Otherwise, the CTP deadlocks in any possible schedules as the synchronous sends can not be returned correctly.
+
+
 %rules for blocking send
+
+
+\subsection{Violation of Ready Send}
+
+To check the violation of ready send in a CTP, a feasible schedule has to be proved by solving the encoding that is already defined. After that, the encoding adds a property for the intended erroneous behavior for ready sends. The property defined in rule (9) checks whether there is a ready send such that the ordering over the send and its matching receive is incorrect. Incorrect in this context means that the receive is posted after the send is posted in a schedule.
+
+\encodingready
+
+The encoding with the new property is then resolved by a standard SMT solver. If the solver returns a satisfying assignment, indicating that the matching receive for a ready send can be posted later, the violation of a ready send is detected.
+
+Once the violation is detected, a post-processing can be launched for further error checking. For example, ... 
+
 
 
 
