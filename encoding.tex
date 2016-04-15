@@ -37,23 +37,29 @@ A receive operation, \texttt{r}, is six-tuple of variables:
 \label{def:receive}
 \end{definition}
 
-The match pair is defined in \defref{}.
-\begin{definition}
-A match pair, $\langle r\ s\rangle$, for a receive $\mathtt{r}=(M_\mathtt{r},\mathit{time})$
-\label{def:mp}
+The match pair is defined in \defref{def:mp}.
+\begin{definition} \label{def:mp}
+A match pair, $\langle\mathtt{r}, \mathtt{s}\rangle$, for a receive $\mathtt{r}$ $=$ $(M_\mathtt{r},$ $\mathit{time}_\mathtt{r},$ $e_\mathtt{r},$ $src_\mathtt{r},$ $\mathit{value}_\mathtt{r},$ $\mathit{time}_{\mathtt{w}_\mathtt{r}})$ and a send $\mathtt{s}$ $=$ $(M_\mathtt{s},$ $\mathit{time}_\mathtt{s},$ $e_\mathtt{s},$ $src_\mathtt{s},$ $\mathit{value}_\mathtt{s})$, corresponds to the constraints:
+\begin{compactenum}
+\item $M_{\mathtt{r}} = \mathit{time}_{\mathtt{s}} \wedge M_{\mathtt{s}} = \mathit{time}_{\mathtt{r}}$
+\item $e_{\mathtt{r}} = e_{\mathtt{s}} \wedge \mathit{value}_{\mathtt{r}} = \mathit{value}_{\mathtt{s}}$
+\item $src_\mathtt{r} = \ast \vee src_\mathtt{s} = src_\mathtt{r}$
+\item $\mathit{time}_{\mathtt{s}} \prec_\mathtt{HB} \mathit{time}_{\mathtt{w_r}}$
+\end{compactenum}
 \end{definition}
 
-The encoding rules are defined in \figref{}. Generally, rules (1) -- (4) encode the sequential order over events in a single process; rule (5) encodes the \emph{non-overtaking} order for two sequential sends; and rule (6) encodes the match pairs. Intuitively, the match pair in \defref{def:mp} and the encoding in rule (6) enforce that each receive in the CTP is paired with a distinct send. 
+The encoding rules are defined in \figref{fig:ptp}. Generally, rules (1) -- (4) encode the sequential order over events in a single process; rule (5) encodes the \emph{non-overtaking} order for two sequential sends; and rule (6) encodes the match pairs. Intuitively, the match pair in \defref{def:mp} and the encoding in rule (6) enforce that each receive in the CTP is paired with a distinct send. 
 
 \setcounter{equation}{0}
 \encodingptp
 
 \subsection{Compatibility of Synchronous Send}
 
-The existing encoding does not need to encode the wait for a send operation. As a synchronous send has to check when it is returned, the new encoding defines the nearest-enclosing wait for a synchronous send in \defref{}. As such, a synchronous send \texttt{ss} is defined as six-tuple of variables $(M,\mathit{time},e,\mathit{src},\mathit{value},\mathit{time}_\mathtt{w_{ss}})$, where $\mathit{time}_\mathtt{w_{ss}}$ is the nearest-enclosing wait for \texttt{ss}.
+The existing encoding does not need to encode the wait for a send operation. As a synchronous send has to check when it is returned, the new encoding defines the nearest-enclosing wait for a synchronous send in \defref{def:syncnw}. As such, a synchronous send \texttt{ss} is defined as six-tuple of variables $(M,\mathit{time},e,\mathit{src},\mathit{value},\mathit{time}_\mathtt{w_{ss}})$, where $\mathit{time}_\mathtt{w_{ss}}$ is the nearest-enclosing wait for \texttt{ss}.
 
 \begin{definition}
 A nearest-enclosing wait, $\mathtt{w}_\mathtt{ss}$, for a synchronous send, $\mathtt{ss}$, witnesses the return of $\mathtt{ss}$ by indicating that the message is delivered and that all the previous synchronous sends from a common source to a common destination are returned as well.
+\label{def:syncnw}
 \end{definition}
 
 The new encoding rules for synchronous are added as shown in \figref{fig:syncrule}: in each process a synchronous send happens before its nearest enclosing wait (rule (7)); the matching receive for each synchronous send happens before the nearest-enclosing wait for the send (rule (8)); and the nearest-enclosing wait for a synchronous send happens before any event that immediately follows the wait in an identical process (rule(9)).
@@ -68,7 +74,7 @@ To check if a CTP is compatible with synchronous send, the encoding intends to f
 
 \subsection{Violation of Ready Send}
 
-To check the violation of ready send in a CTP, a feasible schedule has to be proved by solving the encoding that is already defined. After that, the encoding adds a property for the intended erroneous behavior for ready sends. The property defined in rule (10) checks whether there is a ready send such that the ordering over the send and its matching receive is incorrect. Incorrect in this context means that the receive is posted after the send is posted in a schedule.
+To check the violation of ready send in a CTP, a feasible schedule has to be proved by solving the encoding that is already defined. After that, the encoding adds a property for the intended erroneous behavior for ready sends. The property defined in rule (10) of \figref{fig:readyrule} checks whether there is a ready send such that the ordering over the send and its matching receive is incorrect. Incorrect in this context means that the receive is posted after the send is posted in a schedule.
 
 \encodingready
 
